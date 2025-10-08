@@ -9,7 +9,7 @@ from sklearn.ensemble import (
     RandomForestRegressor,
 )
 
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
@@ -19,6 +19,7 @@ from src.exception import CustomException
 from src.logger import logging
 
 from src.utils import save_object,evaluate_models
+from src.components.hyperparameter_tuning import hyper_parameter_tuning
 
 @dataclass
 class ModelTrainerConfig:
@@ -42,15 +43,28 @@ class ModelTrainer:
                 "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
-                "K-Neighbors Classifier": KNeighborsRegressor(),
-                "Logistic Regression": LogisticRegression(),
-                "XGB Classifier": XGBRegressor(),
-                "CatBoost Classifier": CatBoostRegressor(verbose=False),
-                "AdaBoost Classifier": AdaBoostRegressor(),
+                "K-Neighbors Regressor": KNeighborsRegressor(),
+                "Linear Regression": LinearRegression(),
+                "XGB Regressor": XGBRegressor(),
+                "CatBoost Regressor": CatBoostRegressor(verbose=False),
+                "AdaBoost Regressor": AdaBoostRegressor(),
             }
 
+            logging.info("Starting hyperparameter tuning")
+
+            tuned_models = hyper_parameter_tuning(
+                X_train=X_train,
+                y_train=y_train,
+                X_test=X_test,
+                y_test=y_test,
+                models=models,
+                cv=3,
+                n_jobs = 4
+                )
+            
+
             model_report:dict = evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
-                                                models=models)
+                                                models=tuned_models)
             
             # Sort based on high r2score in dictionary
             best_model_score = max(sorted(model_report.values()))
@@ -65,7 +79,7 @@ class ModelTrainer:
             if best_model_score <= 0.6:
                 raise CustomException("No best model found")
             
-            logging.info("Best model found in both training and testing dataset")
+            logging.info(f"Best model found: {best_model_name} with r2 score: {best_model_score:.4f}")
 
             save_object(
                 file_path=self.model_trainer_config.trained_model_file_path,
@@ -75,6 +89,9 @@ class ModelTrainer:
             predicted = best_model.predict(X_test)
 
             score = r2_score(y_test,predicted)
+
+            logging.info(f"Final R2 score of test set is {score}")
+            
             return score
         
         except Exception as e:

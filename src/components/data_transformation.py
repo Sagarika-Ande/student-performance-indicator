@@ -39,16 +39,18 @@ class DataTransformation:
 
             num_pipeline = Pipeline(
                 [
+                    ("imputer",SimpleImputer(strategy="median")),  #Robust to outliers
                     ("scaler",StandardScaler()),
-                    ("imputer",SimpleImputer(strategy="median"))  #Robust to outliers
+                    
                 ]
 
             )
 
             cat_pipeline = Pipeline(
                 [
+                    ("imputer",SimpleImputer(strategy="most_frequent")),
                     ("one_hot_encoding",OneHotEncoder()),
-                    ("imputer",SimpleImputer(strategy="most_frequent"))  #Robust to outliers
+                      
                 ]
 
             )
