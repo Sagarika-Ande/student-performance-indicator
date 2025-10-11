@@ -74,10 +74,32 @@ Tools & Frameworks: Docker, Render, Logging, Exception Handling
 Model: Linear Regression
 
 Version Control: Git, GitHub
+## How to Run Locally
+# Clone the repository
+git clone https://github.com/Sahilnegi4444/student-performance-indicator.git
+cd student-performance-indicator
 
-🌐 Deployment
+# Create and activate a virtual environment
+python -m venv venv      # I have used python3.12 for this code
+venv\Scripts\activate    # For Windows
+# or
+source venv/bin/activate # For Mac/Linux
 
-Deployed on Render using a Docker image with a lightweight setup (using requirements_docker.txt) and Gunicorn for scalability.
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the Flask app
+python app.py
+
+
+For Dockerized deployment:
+
+docker build -t student-performance .
+docker run -p 8080:5000 student-performance
+
+## Deployment
+
+Deployed on Render using a Docker image with a lightweight setup (using requirements_docker.txt) and Gunicorn for scalability and multiple requests.
 
 🔗 [View Live App](https://student-performance-indicator-3j4u.onrender.com/predictdata)
 
